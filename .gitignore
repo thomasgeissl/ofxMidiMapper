@@ -1,0 +1,4 @@
+build-*
+example/bin/*
+example/obj/*
+

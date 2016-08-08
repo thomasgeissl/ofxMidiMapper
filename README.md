@@ -1,0 +1,5 @@
+# ofxMidiMapper
+## Description
+## Dependencies
+
+* ofxMidi
