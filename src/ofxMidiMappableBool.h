@@ -14,14 +14,15 @@ public:
     {
         ofLogNotice("ofxMidiMappableBool")<<"map "<<value;
 //        TODO: mapping: 0 -> false, !0 -> true ?
-        if(value != 0)
-        {
-            _parameter->set(true);
-        }
-        else
-        {
-            _parameter->set(false);
-        }
+//        if(value != 0)
+//        {
+//            _parameter->set(true);
+//        }
+//        else
+//        {
+//            _parameter->set(false);
+//        }
+        _parameter->set(!_parameter->get());
     }
 
 protected:
