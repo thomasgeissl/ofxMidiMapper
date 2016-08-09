@@ -17,6 +17,9 @@ public:
     void addParameter(ofParameter<float> *parameter);
     void addParameter(ofParameter<int> *parameter);
 
+    void openMidiPort(int port);
+    void openVirtualMidiPort(string name);
+
     bool addMapping(int channel, int pitch, std::string name, bool force = true);
     bool removeMapping(int channel, int pitch);
 

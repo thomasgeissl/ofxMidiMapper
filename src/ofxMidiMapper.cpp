@@ -9,7 +9,6 @@ ofxMidiMapper::ofxMidiMapper()
     _parameters.add(_activeParameter);
     _parameters.add(_activeMappingParameter);
 
-    _midiIn.openVirtualPort("ofxMidiMapper");
     _midiIn.addListener(this);
 }
 
@@ -36,6 +35,18 @@ void ofxMidiMapper::addParameter(ofParameter<int> *parameter)
 //    mappable.addListener(*this);
     ofAddListener(mappable->getMapEvent(), this, &ofxMidiMapper::onMapEvent);
     _mappables[parameter->getName()] = mappable;
+}
+
+void ofxMidiMapper::openMidiPort(int port)
+{
+    _midiIn.closePort();
+    _midiIn.openPort(port);
+}
+
+void ofxMidiMapper::openVirtualMidiPort(string name)
+{
+    _midiIn.closePort();
+    _midiIn.openVirtualPort(name);
 }
 
 bool ofxMidiMapper::addMapping(int channel, int pitch, string name, bool force)

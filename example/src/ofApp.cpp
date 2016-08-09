@@ -23,6 +23,10 @@ void ofApp::setup(){
     _midiMapper.addParameter(&_mappableBoolParameter);
     _midiMapper.addParameter(&_mappableFloatParameter);
     _midiMapper.addParameter(&_mappableIntParameter);
+
+//    connect to a midi device
+//    _midiMapper.openMidiPort(0);
+    _midiMapper.openVirtualMidiPort("ofxMidiMapperExample");
 }
 
 //--------------------------------------------------------------
