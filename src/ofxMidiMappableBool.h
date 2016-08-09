@@ -12,9 +12,16 @@ public:
     }
     void map(int value)
     {
-        ofLogNotice("ofxMidiMappableFloat")<<"map "<<value;
+        ofLogNotice("ofxMidiMappableBool")<<"map "<<value;
 //        TODO: mapping: 0 -> false, !0 -> true ?
-//        _parameter->set(ofMap(value, 0, 127, _parameter->getMin(), _parameter->getMax()));
+        if(value != 0)
+        {
+            _parameter->set(true);
+        }
+        else
+        {
+            _parameter->set(false);
+        }
     }
 
 protected:
