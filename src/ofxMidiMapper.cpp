@@ -221,12 +221,11 @@ bool ofxMidiMapper::loadMapping(string path)
     {
         mappingJson << mappingFile;
         ofLogNotice("ofxMidiMapper")<<"successfully loaded mappings "<< mappingJson.dump(4);
+        _mapping.clear();
+
         for(auto mapping : mappingJson["mappings"])
         {
-            _mapping.clear();
             addMapping(mapping["channel"].get<int>(), mapping["pitchOrCC"].get<int>(), mapping["isCC"].get<bool>(), mapping["name"].get<string>());
-
-
         }
     }
     else
@@ -259,7 +258,7 @@ bool ofxMidiMapper::saveMapping(string path, bool force)
         bool isCC = std::get<2>(mapping.first);
 
         std::string name = mapping.second;
-        mappingJson["mappings"].push_back({{"channel", channel}, {"pitchOrCC", pitchOrCC}, {"isCC", isCC}});
+        mappingJson["mappings"].push_back({{"channel", channel}, {"pitchOrCC", pitchOrCC}, {"isCC", isCC}, {"name", name}});
     }
     mappingFile << mappingJson.dump(4);
     mappingFile.close();
