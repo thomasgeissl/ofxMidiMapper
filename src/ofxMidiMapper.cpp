@@ -49,14 +49,14 @@ void ofxMidiMapper::openVirtualMidiPort(string name)
     _midiIn.openVirtualPort(name);
 }
 
-bool ofxMidiMapper::addMapping(int channel, int pitch, string name, bool force)
+bool ofxMidiMapper::addMapping(int channel, int pitch, bool isCC, string name, bool force)
 {
-    if(doesMappingExist(channel, pitch))
+    if(doesMappingExist(channel, pitch, isCC))
     {
         ofLogWarning("ofxMidiMapper")<<"mapping does already exist: ("<<channel<<", "<<name<<")";
         if(force)
         {
-            _mapping[pair<int, int>(channel, pitch)] = name;
+            _mapping[tuple<int, int, bool>(channel, pitch, isCC)] = name;
             return true;
         }
         else
@@ -66,15 +66,15 @@ bool ofxMidiMapper::addMapping(int channel, int pitch, string name, bool force)
     }
     else
     {
-        _mapping[pair<int, int>(channel, pitch)] = name;
+        _mapping[std::tuple<int, int, bool>(channel, pitch, isCC)] = name;
         return true;
     }
 }
-bool ofxMidiMapper::removeMapping(int channel, int pitch)
+bool ofxMidiMapper::removeMapping(int channel, int pitch, bool isCC)
 {
-    if(doesMappingExist(channel, pitch))
+    if(doesMappingExist(channel, pitch, isCC))
     {
-        _mapping.erase(_mapping.find(pair<int, int>(channel, pitch)));
+        _mapping.erase(_mapping.find(std::tuple<int, int, bool>(channel, pitch, isCC)));
         return true;
     }
     else
@@ -84,9 +84,9 @@ bool ofxMidiMapper::removeMapping(int channel, int pitch)
     }
 }
 
-bool ofxMidiMapper::doesMappingExist(int channel, int pitch)
+bool ofxMidiMapper::doesMappingExist(int channel, int pitch, bool isCC)
 {
-    return (_mapping.find(pair<int, int>(channel, pitch)) != _mapping.end());
+    return (_mapping.find(std::tuple<int, int, bool>(channel, pitch, isCC)) != _mapping.end());
 }
 
 bool ofxMidiMapper::doesMappableExist(string name)
@@ -94,10 +94,10 @@ bool ofxMidiMapper::doesMappableExist(string name)
     return (_mappables.find(name) != _mappables.end());
 }
 
-std::string ofxMidiMapper::getMappedName(int channel, int pitch)
+std::string ofxMidiMapper::getMappedName(int channel, int pitch, bool isCC)
 {
-    if(doesMappingExist(channel, pitch)){
-        return _mapping[pair<int, int>(channel, pitch)];
+    if(doesMappingExist(channel, pitch, isCC)){
+        return _mapping[std::tuple<int, int, bool>(channel, pitch, isCC)];
     }else{
 //        TODO: better throw an exception instead of returning an empty string?
         ofLogError("ofxMidiMapper")<<"mapping does not exist. returning empty string";
@@ -135,16 +135,17 @@ void ofxMidiMapper::newMidiMessage(ofxMidiMessage &msg)
         int channel = msg.channel;
         int pitch = msg.pitch;
         int velocity = msg.velocity;
+        bool isCC = false;
         if(_activeMappingParameter){
             if(_nameOfMappable != "")
             {
-                addMapping(channel, pitch, _nameOfMappable);
+                addMapping(channel, pitch, isCC, _nameOfMappable);
             }
             _nameOfMappable = "";
         }
         ofLogNotice("ofxMidiMapper")<<"note on: pitch = "<<pitch<<", velocity = "<<velocity;
-        if(doesMappingExist(channel, pitch)){
-            std::string name = getMappedName(channel, pitch);
+        if(doesMappingExist(channel, pitch, isCC)){
+            std::string name = getMappedName(channel, pitch, isCC);
             if(doesMappableExist(name))
             {
                 getMappable(name)->map(velocity);
@@ -161,14 +162,42 @@ void ofxMidiMapper::newMidiMessage(ofxMidiMessage &msg)
         int channel = msg.channel;
         int pitch = msg.pitch;
         int velocity = msg.velocity;
+        bool isCC = false;
+
         ofLogNotice("ofxMidiMapper")<<"note on: pitch = "<<pitch<<", velocity = "<<velocity;
-        if(doesMappingExist(channel, pitch)){
-            std::string name = getMappedName(channel, pitch);
+        if(doesMappingExist(channel, pitch, isCC)){
+            std::string name = getMappedName(channel, pitch, isCC);
         }
         break;
     }
 
-    case MIDI_CONTROL_CHANGE: break;
+    case MIDI_CONTROL_CHANGE:
+    {
+        int channel = msg.channel;
+        int value = msg.value;
+        int control = msg.control;
+        bool isCC = true;
+        ofLogNotice("ofxMidiMapper")<<"program change on: value = "<<value<<", control = "<<control;
+        if(_activeMappingParameter){
+            if(_nameOfMappable != "")
+            {
+                addMapping(channel, control, isCC, _nameOfMappable);
+            }
+            _nameOfMappable = "";
+        }
+        if(doesMappingExist(channel, control, isCC)){
+            std::string name = getMappedName(channel, control, isCC);
+            if(doesMappableExist(name))
+            {
+                getMappable(name)->map(value);
+            }
+        }
+        else
+        {
+            ofLogNotice("ofxMidiMapper")<<"mapping does not already exist";
+        }
+        break;
+    }
     case MIDI_PROGRAM_CHANGE: break;
     default: break;
     }
