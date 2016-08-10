@@ -143,7 +143,6 @@ void ofxMidiMapper::newMidiMessage(ofxMidiMessage &msg)
             }
             _nameOfMappable = "";
         }
-        ofLogNotice("ofxMidiMapper")<<"note on: pitch = "<<pitch<<", velocity = "<<velocity;
         if(doesMappingExist(channel, pitch, isCC)){
             std::string name = getMappedName(channel, pitch, isCC);
             if(doesMappableExist(name))
@@ -153,7 +152,7 @@ void ofxMidiMapper::newMidiMessage(ofxMidiMessage &msg)
         }
         else
         {
-            ofLogNotice("ofxMidiMapper")<<"mapping does not already exist";
+//            ofLogNotice("ofxMidiMapper")<<"mapping does not already exist";
         }
         break;
     }
@@ -163,8 +162,6 @@ void ofxMidiMapper::newMidiMessage(ofxMidiMessage &msg)
         int pitch = msg.pitch;
         int velocity = msg.velocity;
         bool isCC = false;
-
-        ofLogNotice("ofxMidiMapper")<<"note on: pitch = "<<pitch<<", velocity = "<<velocity;
         if(doesMappingExist(channel, pitch, isCC)){
             std::string name = getMappedName(channel, pitch, isCC);
         }
@@ -177,7 +174,6 @@ void ofxMidiMapper::newMidiMessage(ofxMidiMessage &msg)
         int value = msg.value;
         int control = msg.control;
         bool isCC = true;
-        ofLogNotice("ofxMidiMapper")<<"program change on: value = "<<value<<", control = "<<control;
         if(_activeMappingParameter){
             if(_nameOfMappable != "")
             {
@@ -194,7 +190,7 @@ void ofxMidiMapper::newMidiMessage(ofxMidiMessage &msg)
         }
         else
         {
-            ofLogNotice("ofxMidiMapper")<<"mapping does not already exist";
+//            ofLogNotice("ofxMidiMapper")<<"mapping does not already exist";
         }
         break;
     }
@@ -205,10 +201,8 @@ void ofxMidiMapper::newMidiMessage(ofxMidiMessage &msg)
 
 void ofxMidiMapper::onMapEvent(string &nameOfMappable)
 {
-    ofLogNotice("ofxMidiMapper")<<"on map Event "<<nameOfMappable;
     if(_activeMappingParameter){
         _nameOfMappable = nameOfMappable;
-        ofLogNotice("ofxMidiMapper")<<"name of mappable "<<_nameOfMappable;
     }
 }
 
