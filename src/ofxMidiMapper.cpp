@@ -211,3 +211,57 @@ void ofxMidiMapper::onMapEvent(string &nameOfMappable)
         ofLogNotice("ofxMidiMapper")<<"name of mappable "<<_nameOfMappable;
     }
 }
+
+bool ofxMidiMapper::loadMapping(string path)
+{
+    ofFile mappingFile;
+    ofJson mappingJson;
+    mappingFile.open(ofToDataPath(path));
+    if(mappingFile.exists())
+    {
+        mappingJson << mappingFile;
+        ofLogNotice("ofxMidiMapper")<<"successfully loaded mappings "<< mappingJson.dump(4);
+        for(auto mapping : mappingJson["mappings"])
+        {
+            _mapping.clear();
+            addMapping(mapping["channel"].get<int>(), mapping["pitchOrCC"].get<int>(), mapping["isCC"].get<bool>(), mapping["name"].get<string>());
+
+
+        }
+    }
+    else
+    {
+        ofLogError("ofxMidiMapper")<<ofToDataPath(path)<<" does not exist";
+        return false;
+    }
+}
+
+bool ofxMidiMapper::saveMapping(string path, bool force)
+{
+    ofFile mappingFile;
+    mappingFile.open(ofToDataPath(path), ofFile::ReadWrite);
+    if(mappingFile.exists() && !force)
+    {
+        ofLogError("ofxMidiMapper")<<ofToDataPath(path)<<" already exists.";
+        return false;
+    }
+    else
+    {
+        mappingFile.create();
+    }
+    ofJson mappingJson;
+
+    mappingJson["mappings"] = ofJson::array();
+    for(auto mapping : _mapping)
+    {
+        int channel = std::get<0>(mapping.first);
+        int pitchOrCC = std::get<1>(mapping.first);
+        bool isCC = std::get<2>(mapping.first);
+
+        std::string name = mapping.second;
+        mappingJson["mappings"].push_back({{"channel", channel}, {"pitchOrCC", pitchOrCC}, {"isCC", isCC}});
+    }
+    mappingFile << mappingJson.dump(4);
+    mappingFile.close();
+    return true;
+}

@@ -49,6 +49,11 @@ void ofApp::keyPressed(int key){
 
 //--------------------------------------------------------------
 void ofApp::keyReleased(int key){
+    switch(key)
+    {
+    case 'l': _midiMapper.loadMapping("mapping.json"); break;
+    case 's': _midiMapper.saveMapping("mapping.json"); break;
+    }
 
 }
 

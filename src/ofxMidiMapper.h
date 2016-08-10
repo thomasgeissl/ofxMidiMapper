@@ -33,6 +33,9 @@ public:
     ofParameterGroup & getParameters();
     void onMapEvent(string &nameOfMappable);
 
+    bool loadMapping(std::string path);
+    bool saveMapping(std::string path, bool force = true);
+
 protected:
 private:
     void newMidiMessage(ofxMidiMessage &msg);
