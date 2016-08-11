@@ -7,10 +7,12 @@ void ofApp::setup(){
 	_mappableBoolParameter.set("bool parameter", false);
 	_mappableFloatParameter.set("float parameter", 0, 0, 1);
 	_mappableIntParameter.set("int parameter", 0, 0, 100);
+	_mappableVoidParameter.setName("void parameter");
 
 	_mappableParameters.add(_mappableBoolParameter);
 	_mappableParameters.add(_mappableFloatParameter);
 	_mappableParameters.add(_mappableIntParameter);
+	_mappableParameters.add(_mappableVoidParameter);
 
 	_midiMapper.getParameters().setName("Mapper parameters");
 	_parameters.add(_midiMapper.getParameters());
@@ -21,6 +23,7 @@ void ofApp::setup(){
 	_midiMapper.addParameter(&_mappableBoolParameter);
 	_midiMapper.addParameter(&_mappableFloatParameter);
 	_midiMapper.addParameter(&_mappableIntParameter);
+	_midiMapper.addParameter(&_mappableVoidParameter);
 
 //    connect to a midi device
 	_midiMapper.openMidiPort(0);

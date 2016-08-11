@@ -28,6 +28,8 @@ class ofApp : public ofBaseApp {
 		ofParameter <bool> _mappableBoolParameter;
 		ofParameter <float> _mappableFloatParameter;
 		ofParameter <int> _mappableIntParameter;
+		ofParameter <void> _mappableVoidParameter;
+
 		ofxPanel _gui;
 		ofxMidiMapper _midiMapper;
 };
