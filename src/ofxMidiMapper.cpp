@@ -1,6 +1,6 @@
 #include "ofxMidiMapper.h"
 
-ofxMidiMapper::ofxMidiMapper(){
+ofxMidiMapper::ofxMidiMapper() : _idCounter(0){
 	_parameters.setName("parameters");
 	_activeParameter.set("on/off", false);
 	_activeMappingParameter.set("mapping mode", false);
@@ -38,6 +38,13 @@ void ofxMidiMapper::addParameter(ofParameter <void> * parameter){
 //    mappable.addListener(*this);
 	ofAddListener(mappable->getMapEvent(), this, &ofxMidiMapper::onMapEvent);
 	_mappables[parameter->getName()] = mappable;
+}
+void ofxMidiMapper::addParameters(ofParameterGroup & parameter){
+//    ofxMidiMappableVoid * mappable = new ofxMidiMappableVoid();
+//    mappable->setup(parameter);
+//    //    mappable.addListener(*this);
+//    ofAddListener(mappable->getMapEvent(), this, &ofxMidiMapper::onMapEvent);
+//    _mappables[parameter->getName()] = mappable;
 }
 void ofxMidiMapper::openMidiPort(int port){
 	_midiIn.closePort();

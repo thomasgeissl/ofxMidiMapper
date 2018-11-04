@@ -20,6 +20,7 @@ class ofxMidiMapper :
 		void addParameter(ofParameter <float> * parameter);
 		void addParameter(ofParameter <int> * parameter);
 		void addParameter(ofParameter <void> * parameter);
+        void addParameters(ofParameterGroup & parameters);
 
 		void openMidiPort(int port);
 		void openVirtualMidiPort(string name);
@@ -53,4 +54,5 @@ class ofxMidiMapper :
 		ofParameter <bool> _activeMappingParameter;
 
 		std::string _nameOfMappable;
+        int _idCounter;
 };
