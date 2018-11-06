@@ -4,12 +4,13 @@
 class ofxMidiMapper;
 class ofxMidiMappable {
 public:
+    ofxMidiMappable(int id);
     void addListener(ofxMidiMapper & listener);
     virtual void map(int value){}
-    ofEvent <std::string> & getMapEvent();
+    ofEvent<int> & getMapEvent();
     
 protected:
-    ofEvent <std::string> _mapEvent;
+    ofEvent<int> _mapEvent;
     int _id;
     
 private:

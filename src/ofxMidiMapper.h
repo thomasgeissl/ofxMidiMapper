@@ -25,15 +25,15 @@ class ofxMidiMapper :
 		void openMidiPort(int port);
 		void openVirtualMidiPort(string name);
 
-		bool addMapping(int channel, int pitch, bool isCC, std::string name, bool force = true);
+		bool addMapping(int channel, int pitch, bool isCC, int id, bool force = true);
 		bool removeMapping(int channel, int pitch, bool isCC);
 
 		bool doesMappingExist(int channel, int pitch, bool isCC);
-		bool doesMappableExist(std::string name);
-		std::string getMappedName(int channel, int pitch, bool isCC);
-		ofxMidiMappable * getMappable(std::string name);
+		bool doesMappableExist(int id);
+		int getMappedId(int channel, int pitch, bool isCC);
+		ofxMidiMappable * getMappable(int id);
 		ofParameterGroup & getParameters();
-		void onMapEvent(string & nameOfMappable);
+		void onMapEvent(int & idOfMappable);
 
 		bool loadMapping(std::string path);
 		bool saveMapping(std::string path, bool force = true);
@@ -44,15 +44,13 @@ class ofxMidiMapper :
 
 	private:
 		ofxMidiIn _midiIn;
-		std::map <std::string, ofxMidiMappable *> _mappables;
-
-//    std::map<std::pair<int, int>, string> _mapping;
-		std::map <std::tuple <int, int, bool>, string> _mapping;
+		std::map<int, ofxMidiMappable *> _mappables;
+		std::map<std::tuple<int, int, bool>, int> _mapping;
 
 		ofParameterGroup _parameters;
 		ofParameter <bool> _activeParameter;
 		ofParameter <bool> _activeMappingParameter;
 
-		std::string _nameOfMappable;
+		int _idOfMappable;
         int _idCounter;
 };

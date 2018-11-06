@@ -12,32 +12,28 @@ ofxMidiMapper::ofxMidiMapper() : _idCounter(0){
 }
 
 void ofxMidiMapper::addParameter(ofParameter <bool> * parameter){
-	ofxMidiMappableBool * mappable = new ofxMidiMappableBool();
-	mappable->setup(parameter);
-//    mappable.addListener(*this);
+	ofxMidiMappableBool * mappable = new ofxMidiMappableBool(parameter, ++_idCounter);
+
 	ofAddListener(mappable->getMapEvent(), this, &ofxMidiMapper::onMapEvent);
-	_mappables[parameter->getName()] = mappable;
+	_mappables[_idCounter] = mappable;
 }
 void ofxMidiMapper::addParameter(ofParameter <float> * parameter){
-	ofxMidiMappableFloat * mappable = new ofxMidiMappableFloat();
-	mappable->setup(parameter);
+	ofxMidiMappableFloat * mappable = new ofxMidiMappableFloat(parameter, ++_idCounter);
 //    mappable.addListener(*this);
 	ofAddListener(mappable->getMapEvent(), this, &ofxMidiMapper::onMapEvent);
-	_mappables[parameter->getName()] = mappable;
+	_mappables[_idCounter] = mappable;
 }
 void ofxMidiMapper::addParameter(ofParameter <int> * parameter){
-	ofxMidiMappableInt * mappable = new ofxMidiMappableInt();
-	mappable->setup(parameter);
+	ofxMidiMappableInt * mappable = new ofxMidiMappableInt(parameter, ++_idCounter);
 //    mappable.addListener(*this);
 	ofAddListener(mappable->getMapEvent(), this, &ofxMidiMapper::onMapEvent);
-	_mappables[parameter->getName()] = mappable;
+	_mappables[_idCounter] = mappable;
 }
 void ofxMidiMapper::addParameter(ofParameter <void> * parameter){
-	ofxMidiMappableVoid * mappable = new ofxMidiMappableVoid();
-	mappable->setup(parameter);
+	ofxMidiMappableVoid * mappable = new ofxMidiMappableVoid(parameter, _idCounter);
 //    mappable.addListener(*this);
 	ofAddListener(mappable->getMapEvent(), this, &ofxMidiMapper::onMapEvent);
-	_mappables[parameter->getName()] = mappable;
+	_mappables[_idCounter] = mappable;
 }
 void ofxMidiMapper::addParameters(ofParameterGroup & parameter){
 //    ofxMidiMappableVoid * mappable = new ofxMidiMappableVoid();
@@ -56,17 +52,17 @@ void ofxMidiMapper::openVirtualMidiPort(string name){
 	_midiIn.openVirtualPort(name);
 }
 
-bool ofxMidiMapper::addMapping(int channel, int pitch, bool isCC, string name, bool force){
+bool ofxMidiMapper::addMapping(int channel, int pitch, bool isCC, int id, bool force){
 	if(doesMappingExist(channel, pitch, isCC)){
-		ofLogWarning("ofxMidiMapper") << "mapping does already exist: (" << channel << ", " << name << ")";
+		ofLogWarning("ofxMidiMapper") << "mapping does already exist: (" << channel << ", " << id << ")";
 		if(force){
-			_mapping[tuple < int, int, bool > (channel, pitch, isCC)] = name;
+			_mapping[tuple < int, int, bool > (channel, pitch, isCC)] = id;
 			return true;
 		}else{
 			return false;
 		}
 	}else{
-		_mapping[std::tuple < int, int, bool > (channel, pitch, isCC)] = name;
+		_mapping[std::tuple < int, int, bool > (channel, pitch, isCC)] = id;
 		return true;
 	}
 }
@@ -84,23 +80,23 @@ bool ofxMidiMapper::doesMappingExist(int channel, int pitch, bool isCC){
 	return (_mapping.find(std::tuple <int, int, bool>(channel, pitch, isCC)) != _mapping.end());
 }
 
-bool ofxMidiMapper::doesMappableExist(string name){
-	return (_mappables.find(name) != _mappables.end());
+bool ofxMidiMapper::doesMappableExist(int id){
+	return (_mappables.find(id) != _mappables.end());
 }
 
-std::string ofxMidiMapper::getMappedName(int channel, int pitch, bool isCC){
+int ofxMidiMapper::getMappedId(int channel, int pitch, bool isCC){
 	if(doesMappingExist(channel, pitch, isCC)){
 		return _mapping[std::tuple < int, int, bool > (channel, pitch, isCC)];
 	}else{
 //        TODO: better throw an exception instead of returning an empty string?
 		ofLogError("ofxMidiMapper") << "mapping does not exist. returning empty string";
-		return "";
+		return -1;
 	}
 }
 
-ofxMidiMappable * ofxMidiMapper::getMappable(string name){
-	if(doesMappableExist(name)){
-		return _mappables[name];
+ofxMidiMappable * ofxMidiMapper::getMappable(int id){
+	if(doesMappableExist(id)){
+		return _mappables[id];
 	}else{
 //        TODO: better throw an exception instead of returning nullptr?
 		ofLogError("ofxMidiMapper") << "mappable does not exit. returning nullptr";
@@ -124,15 +120,15 @@ void ofxMidiMapper::newMidiMessage(ofxMidiMessage & msg){
 		 int velocity = msg.velocity;
 		 bool isCC = false;
 		 if(_activeMappingParameter){
-			 if(_nameOfMappable != ""){
-				 addMapping(channel, pitch, isCC, _nameOfMappable);
+			 if(_idOfMappable != -1){
+				 addMapping(channel, pitch, isCC, _idOfMappable);
 			 }
-			 _nameOfMappable = "";
+			 _idOfMappable = -1;
 		 }
 		 if(doesMappingExist(channel, pitch, isCC)){
-			 std::string name = getMappedName(channel, pitch, isCC);
-			 if(doesMappableExist(name)){
-				 getMappable(name)->map(velocity);
+			 auto id = getMappedId(channel, pitch, isCC);
+			 if(doesMappableExist(id)){
+				 getMappable(id)->map(velocity);
 			 }
 		 }else{
 //            ofLogNotice("ofxMidiMapper")<<"mapping does not already exist";
@@ -146,7 +142,7 @@ void ofxMidiMapper::newMidiMessage(ofxMidiMessage & msg){
 		 int velocity = msg.velocity;
 		 bool isCC = false;
 		 if(doesMappingExist(channel, pitch, isCC)){
-			 std::string name = getMappedName(channel, pitch, isCC);
+			 auto id = getMappedId(channel, pitch, isCC);
 		 }
 		 break;
 	 }
@@ -157,15 +153,15 @@ void ofxMidiMapper::newMidiMessage(ofxMidiMessage & msg){
 		 int control = msg.control;
 		 bool isCC = true;
 		 if(_activeMappingParameter){
-			 if(_nameOfMappable != ""){
-				 addMapping(channel, control, isCC, _nameOfMappable);
+			 if(_idOfMappable != -1){
+				 addMapping(channel, control, isCC, _idOfMappable);
 			 }
-			 _nameOfMappable = "";
+			 _idOfMappable = -1;
 		 }
 		 if(doesMappingExist(channel, control, isCC)){
-			 std::string name = getMappedName(channel, control, isCC);
-			 if(doesMappableExist(name)){
-				 getMappable(name)->map(value);
+			 auto id = getMappedId(channel, control, isCC);
+			 if(doesMappableExist(id)){
+				 getMappable(id)->map(value);
 			 }
 		 }else{
 //            ofLogNotice("ofxMidiMapper")<<"mapping does not already exist";
@@ -181,9 +177,9 @@ void ofxMidiMapper::newMidiMessage(ofxMidiMessage & msg){
 	}
 }
 
-void ofxMidiMapper::onMapEvent(string & nameOfMappable){
+void ofxMidiMapper::onMapEvent(int & idOfMappable){
 	if(_activeMappingParameter){
-		_nameOfMappable = nameOfMappable;
+		_idOfMappable = idOfMappable;
 	}
 }
 
@@ -192,13 +188,13 @@ bool ofxMidiMapper::loadMapping(string path){
 	ofJson mappingJson;
 	mappingFile.open(ofToDataPath(path));
 	if(mappingFile.exists()){
-		mappingJson << mappingFile;
-		ofLogNotice("ofxMidiMapper") << "successfully loaded mappings " << mappingJson.dump(4);
-		_mapping.clear();
+        mappingJson << mappingFile;
+        ofLogNotice("ofxMidiMapper") << "successfully loaded mappings " << mappingJson.dump(4);
+        _mapping.clear();
 
-		for(auto mapping : mappingJson["mappings"]){
-			addMapping(mapping["channel"].get <int>(), mapping["pitchOrCC"].get <int>(), mapping["isCC"].get <bool>(), mapping["name"].get <string>());
-		}
+        for(auto mapping : mappingJson["mappings"]){
+            addMapping(mapping["channel"].get<int>(), mapping["pitchOrCC"].get<int>(), mapping["isCC"].get<bool>(), mapping["id"].get<int>());
+        }
 	}else{
 		ofLogError("ofxMidiMapper") << ofToDataPath(path) << " does not exist";
 		return false;
@@ -218,12 +214,12 @@ bool ofxMidiMapper::saveMapping(string path, bool force){
 
 	mappingJson["mappings"] = ofJson::array();
 	for(auto mapping : _mapping){
-		int channel = std::get <0>(mapping.first);
-		int pitchOrCC = std::get <1>(mapping.first);
-		bool isCC = std::get <2>(mapping.first);
+		int channel = std::get<0>(mapping.first);
+		int pitchOrCC = std::get<1>(mapping.first);
+		bool isCC = std::get<2>(mapping.first);
 
-		std::string name = mapping.second;
-		mappingJson["mappings"].push_back({{"channel", channel}, {"pitchOrCC", pitchOrCC}, {"isCC", isCC}, {"name", name}});
+		int id = mapping.second;
+        mappingJson["mappings"].push_back({{"channel", channel}, {"pitchOrCC", pitchOrCC}, {"isCC", isCC}, {"id", id}});
 	}
 	mappingFile << mappingJson.dump(4);
 	mappingFile.close();
