@@ -9,6 +9,7 @@ ofxMidiMapper::ofxMidiMapper() : _idCounter(0){
 	_parameters.add(_activeMappingParameter);
 
 	_midiIn.addListener(this);
+    _midiIn.listInPorts();
 }
 
 void ofxMidiMapper::addParameter(ofParameter <bool> & parameter){
@@ -30,7 +31,7 @@ void ofxMidiMapper::addParameter(ofParameter <int> & parameter){
 	_mappables[_idCounter] = mappable;
 }
 void ofxMidiMapper::addParameter(ofParameter <void> & parameter){
-	ofxMidiMappableVoid * mappable = new ofxMidiMappableVoid(parameter, _idCounter);
+	ofxMidiMappableVoid * mappable = new ofxMidiMappableVoid(parameter, ++_idCounter);
 //    mappable.addListener(*this);
 	ofAddListener(mappable->getMapEvent(), this, &ofxMidiMapper::onMapEvent);
 	_mappables[_idCounter] = mappable;
@@ -79,6 +80,7 @@ bool ofxMidiMapper::addMapping(int channel, int pitch, bool isCC, int id, bool f
 		}
 	}else{
 		_mapping[std::tuple < int, int, bool > (channel, pitch, isCC)] = id;
+        ofLogNotice("ofxMidiMapper") << "added mapping: (" << channel << ", " << id << ")";
 		return true;
 	}
 }
@@ -104,8 +106,8 @@ int ofxMidiMapper::getMappedId(int channel, int pitch, bool isCC){
 	if(doesMappingExist(channel, pitch, isCC)){
 		return _mapping[std::tuple < int, int, bool > (channel, pitch, isCC)];
 	}else{
-//        TODO: better throw an exception instead of returning an empty string?
-		ofLogError("ofxMidiMapper") << "mapping does not exist. returning empty string";
+//        TODO: better throw an exception instead of returning -1?
+		ofLogError("ofxMidiMapper") << "mapping does not exist. returning -1";
 		return -1;
 	}
 }
@@ -138,17 +140,15 @@ void ofxMidiMapper::newMidiMessage(ofxMidiMessage & msg){
 		 if(_activeMappingParameter){
 			 if(_idOfMappable != -1){
 				 addMapping(channel, pitch, isCC, _idOfMappable);
+                 _idOfMappable = -1;
 			 }
-			 _idOfMappable = -1;
-		 }
-		 if(doesMappingExist(channel, pitch, isCC)){
-			 auto id = getMappedId(channel, pitch, isCC);
-			 if(doesMappableExist(id)){
-				 getMappable(id)->map(velocity);
-			 }
-		 }else{
-//            ofLogNotice("ofxMidiMapper")<<"mapping does not already exist";
-		 }
+         }
+         if(doesMappingExist(channel, pitch, isCC)){
+             auto id = getMappedId(channel, pitch, isCC);
+             if(doesMappableExist(id)){
+                 getMappable(id)->map(velocity);
+             }
+         }
 		 break;
 	 }
 
@@ -171,17 +171,15 @@ void ofxMidiMapper::newMidiMessage(ofxMidiMessage & msg){
 		 if(_activeMappingParameter){
 			 if(_idOfMappable != -1){
 				 addMapping(channel, control, isCC, _idOfMappable);
-			 }
-			 _idOfMappable = -1;
-		 }
-		 if(doesMappingExist(channel, control, isCC)){
-			 auto id = getMappedId(channel, control, isCC);
-			 if(doesMappableExist(id)){
-				 getMappable(id)->map(value);
-			 }
-		 }else{
-//            ofLogNotice("ofxMidiMapper")<<"mapping does not already exist";
-		 }
+                 _idOfMappable = -1;
+             }
+         }
+         if(doesMappingExist(channel, control, isCC)){
+             auto id = getMappedId(channel, control, isCC);
+             if(doesMappableExist(id)){
+                 getMappable(id)->map(value);
+             }
+         }
 		 break;
 	 }
 
@@ -204,7 +202,7 @@ bool ofxMidiMapper::loadMapping(string path){
 	ofJson mappingJson;
 	mappingFile.open(ofToDataPath(path));
 	if(mappingFile.exists()){
-        mappingJson << mappingFile;
+        mappingFile >> mappingJson;
         ofLogNotice("ofxMidiMapper") << "successfully loaded mappings " << mappingJson.dump(4);
         _mapping.clear();
 
