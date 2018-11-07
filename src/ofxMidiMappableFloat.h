@@ -3,12 +3,12 @@
 
 class ofxMidiMappableFloat : public ofxMidiMappable {
 public:
-    ofxMidiMappableFloat(ofParameter <float> * parameter, int id) : ofxMidiMappable(id){
+    ofxMidiMappableFloat(ofParameter<float> & parameter, int id) : ofxMidiMappable(id){
         _parameter = parameter;
-        parameter->addListener(this, &ofxMidiMappableFloat::notify);
+        parameter.addListener(this, &ofxMidiMappableFloat::notify);
     }
     void map(int value){
-        _parameter->set(ofMap(value, 0, 127, _parameter->getMin(), _parameter->getMax()));
+        _parameter = ofMap(value, 0, 127, _parameter.getMin(), _parameter.getMax());
     }
     
 protected:
@@ -16,7 +16,7 @@ protected:
         _mapEvent.notify(_id);
     }
 protected:
-    ofParameter <float> * _parameter;
+    ofParameter<float> _parameter;
     
 private:
 };

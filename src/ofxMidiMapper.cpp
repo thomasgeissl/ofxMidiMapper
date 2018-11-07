@@ -11,36 +11,52 @@ ofxMidiMapper::ofxMidiMapper() : _idCounter(0){
 	_midiIn.addListener(this);
 }
 
-void ofxMidiMapper::addParameter(ofParameter <bool> * parameter){
+void ofxMidiMapper::addParameter(ofParameter <bool> & parameter){
 	ofxMidiMappableBool * mappable = new ofxMidiMappableBool(parameter, ++_idCounter);
 
 	ofAddListener(mappable->getMapEvent(), this, &ofxMidiMapper::onMapEvent);
 	_mappables[_idCounter] = mappable;
 }
-void ofxMidiMapper::addParameter(ofParameter <float> * parameter){
+void ofxMidiMapper::addParameter(ofParameter <float> & parameter){
 	ofxMidiMappableFloat * mappable = new ofxMidiMappableFloat(parameter, ++_idCounter);
 //    mappable.addListener(*this);
 	ofAddListener(mappable->getMapEvent(), this, &ofxMidiMapper::onMapEvent);
 	_mappables[_idCounter] = mappable;
 }
-void ofxMidiMapper::addParameter(ofParameter <int> * parameter){
+void ofxMidiMapper::addParameter(ofParameter <int> & parameter){
 	ofxMidiMappableInt * mappable = new ofxMidiMappableInt(parameter, ++_idCounter);
 //    mappable.addListener(*this);
 	ofAddListener(mappable->getMapEvent(), this, &ofxMidiMapper::onMapEvent);
 	_mappables[_idCounter] = mappable;
 }
-void ofxMidiMapper::addParameter(ofParameter <void> * parameter){
+void ofxMidiMapper::addParameter(ofParameter <void> & parameter){
 	ofxMidiMappableVoid * mappable = new ofxMidiMappableVoid(parameter, _idCounter);
 //    mappable.addListener(*this);
 	ofAddListener(mappable->getMapEvent(), this, &ofxMidiMapper::onMapEvent);
 	_mappables[_idCounter] = mappable;
 }
-void ofxMidiMapper::addParameters(ofParameterGroup & parameter){
-//    ofxMidiMappableVoid * mappable = new ofxMidiMappableVoid();
-//    mappable->setup(parameter);
-//    //    mappable.addListener(*this);
-//    ofAddListener(mappable->getMapEvent(), this, &ofxMidiMapper::onMapEvent);
-//    _mappables[parameter->getName()] = mappable;
+void ofxMidiMapper::addParameters(ofParameterGroup & parameters){
+    for(auto parameter : parameters){
+        auto type = parameter->type();
+        ofLogNotice() << type;
+        if(type == "11ofParameterIvE"){
+            ofLogNotice("ofxMidiMapper") << "adding void parameter " << parameter->getName();
+            auto typedParameter = parameter->cast<void>();
+            addParameter(typedParameter);
+        }else if(type == "11ofParameterIbE"){
+            auto typedParameter = parameter->cast<bool>();
+            ofLogNotice("ofxMidiMapper") << "adding bool parameter " << parameter->getName();
+            addParameter(typedParameter);
+        }else if(type == "11ofParameterIiE"){
+            ofLogNotice("ofxMidiMapper") << "adding int parameter " << parameter->getName();
+            auto typedParameter = parameter->cast<int>();
+            addParameter(typedParameter);
+        }else if(type == "11ofParameterIfE"){
+            ofLogNotice("ofxMidiMapper") << "adding float parameter " << parameter->getName();
+            auto typedParameter = parameter->cast<float>();
+            addParameter(typedParameter);
+        }
+    }
 }
 void ofxMidiMapper::openMidiPort(int port){
 	_midiIn.closePort();

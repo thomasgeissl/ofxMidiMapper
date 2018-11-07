@@ -3,9 +3,8 @@
 
 class ofxMidiMappableBool : public ofxMidiMappable {
 public:
-    ofxMidiMappableBool(ofParameter <bool> * parameter, int id) : ofxMidiMappable(id){
-        _parameter = parameter;
-        parameter->addListener(this, &ofxMidiMappableBool::notify);
+    ofxMidiMappableBool(ofParameter <bool> & parameter, int id) : ofxMidiMappable(id), _parameter(parameter){
+        _parameter.addListener(this, &ofxMidiMappableBool::notify);
     }
     
     void map(int value){
@@ -18,7 +17,7 @@ public:
         //        {
         //            _parameter->set(false);
         //        }
-        _parameter->set(!_parameter->get());
+        _parameter = !_parameter;
     }
     
 protected:
@@ -26,7 +25,7 @@ protected:
         _mapEvent.notify(_id);
     }
 protected:
-    ofParameter <bool> * _parameter;
+    ofParameter<bool> _parameter;
     
 private:
 };

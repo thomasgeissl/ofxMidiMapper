@@ -3,9 +3,9 @@
 
 class ofxMidiMappableVoid : public ofxMidiMappable {
 public:
-    ofxMidiMappableVoid(ofParameter <void> * parameter, int id) : ofxMidiMappable(id){
+    ofxMidiMappableVoid(ofParameter <void> & parameter, int id) : ofxMidiMappable(id){
         _parameter = parameter;
-        parameter->addListener(this, &ofxMidiMappableVoid::notify);
+        parameter.addListener(this, &ofxMidiMappableVoid::notify);
     }
     
     void map(int value){
@@ -17,7 +17,7 @@ protected:
         _mapEvent.notify(_id);
     }
 protected:
-    ofParameter <void> * _parameter;
+    ofParameter <void> _parameter;
     
 private:
 };

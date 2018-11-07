@@ -16,10 +16,10 @@ class ofxMidiMapper :
 	public ofxMidiListener {
 	public:
 		ofxMidiMapper();
-		void addParameter(ofParameter <bool> * parameter);
-		void addParameter(ofParameter <float> * parameter);
-		void addParameter(ofParameter <int> * parameter);
-		void addParameter(ofParameter <void> * parameter);
+		void addParameter(ofParameter <bool> & parameter);
+		void addParameter(ofParameter <float> & parameter);
+		void addParameter(ofParameter <int> & parameter);
+		void addParameter(ofParameter <void> & parameter);
         void addParameters(ofParameterGroup & parameters);
 
 		void openMidiPort(int port);
@@ -44,8 +44,9 @@ class ofxMidiMapper :
 
 	private:
 		ofxMidiIn _midiIn;
-		std::map<int, ofxMidiMappable *> _mappables;
+		std::map<int, ofxMidiMappable*> _mappables;
 		std::map<std::tuple<int, int, bool>, int> _mapping;
+        std::vector<ofParameter<bool>> _params;
 
 		ofParameterGroup _parameters;
 		ofParameter <bool> _activeParameter;
