@@ -20,10 +20,10 @@ void ofApp::setup(){
 
 	_gui.setup(_parameters);
 
-	_midiMapper.addParameter(&_mappableBoolParameter);
-	_midiMapper.addParameter(&_mappableFloatParameter);
-	_midiMapper.addParameter(&_mappableIntParameter);
-	_midiMapper.addParameter(&_mappableVoidParameter);
+	_midiMapper.addParameter(_mappableBoolParameter);
+	_midiMapper.addParameter(_mappableFloatParameter);
+	_midiMapper.addParameter(_mappableIntParameter);
+	_midiMapper.addParameter(_mappableVoidParameter);
 
 //    connect to a midi device
 	_midiMapper.openMidiPort(0);
