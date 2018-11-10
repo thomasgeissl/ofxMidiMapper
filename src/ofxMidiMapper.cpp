@@ -2,7 +2,7 @@
 
 ofxMidiMapper::ofxMidiMapper() : _idCounter(0){
 	_parameters.setName("parameters");
-	_activeParameter.set("on/off", false);
+	_activeParameter.set("on/off", true);
 	_activeMappingParameter.set("mapping mode", false);
 
 	_parameters.add(_activeParameter);
@@ -41,19 +41,15 @@ void ofxMidiMapper::addParameters(ofParameterGroup & parameters){
         auto type = parameter->type();
         ofLogNotice() << type;
         if(type == "11ofParameterIvE"){
-            ofLogNotice("ofxMidiMapper") << "adding void parameter " << parameter->getName();
             auto typedParameter = parameter->cast<void>();
             addParameter(typedParameter);
         }else if(type == "11ofParameterIbE"){
             auto typedParameter = parameter->cast<bool>();
-            ofLogNotice("ofxMidiMapper") << "adding bool parameter " << parameter->getName();
             addParameter(typedParameter);
         }else if(type == "11ofParameterIiE"){
-            ofLogNotice("ofxMidiMapper") << "adding int parameter " << parameter->getName();
             auto typedParameter = parameter->cast<int>();
             addParameter(typedParameter);
         }else if(type == "11ofParameterIfE"){
-            ofLogNotice("ofxMidiMapper") << "adding float parameter " << parameter->getName();
             auto typedParameter = parameter->cast<float>();
             addParameter(typedParameter);
         }
@@ -130,7 +126,6 @@ void ofxMidiMapper::newMidiMessage(ofxMidiMessage & msg){
 	if(!_activeParameter){
 		return;
 	}
-
 	switch(msg.status){
 	 case MIDI_NOTE_ON: {
 		 int channel = msg.channel;
@@ -233,6 +228,7 @@ bool ofxMidiMapper::saveMapping(string path, bool force){
 		bool isCC = std::get<2>(mapping.first);
 
 		int id = mapping.second;
+        // TODO: add parameter name for better debugging or manually removing entries
         mappingJson["mappings"].push_back({{"channel", channel}, {"pitchOrCC", pitchOrCC}, {"isCC", isCC}, {"id", id}});
 	}
 	mappingFile << mappingJson.dump(4);
