@@ -17,13 +17,14 @@ class ofxMidiMapper :
 	public:
 		ofxMidiMapper();
 		void addParameter(ofParameter <bool> & parameter);
-		void addParameter(ofParameter <float> & parameter);
-		void addParameter(ofParameter <int> & parameter);
+		void addParameter(ofParameter <float> & parameter, bool catchCurrentValue = false);
+		void addParameter(ofParameter <int> & parameter, bool catchCurrentValue = false);
 		void addParameter(ofParameter <void> & parameter);
-        void addParameters(ofParameterGroup & parameters);
+        void addParameters(ofParameterGroup & parameters, bool catchCurrentValue = false);
 
 		void openMidiPort(int port);
 		void openVirtualMidiPort(string name);
+        void listInPorts();
 
 		bool addMapping(int channel, int pitch, bool isCC, int id, bool force = true);
 		bool removeMapping(int channel, int pitch, bool isCC);

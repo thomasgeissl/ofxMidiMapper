@@ -18,14 +18,14 @@ void ofxMidiMapper::addParameter(ofParameter <bool> & parameter){
 	ofAddListener(mappable->getMapEvent(), this, &ofxMidiMapper::onMapEvent);
 	_mappables[_idCounter] = mappable;
 }
-void ofxMidiMapper::addParameter(ofParameter <float> & parameter){
-	ofxMidiMappableFloat * mappable = new ofxMidiMappableFloat(parameter, ++_idCounter);
+void ofxMidiMapper::addParameter(ofParameter <float> & parameter, bool catchCurrentValue){
+	ofxMidiMappableFloat * mappable = new ofxMidiMappableFloat(parameter, ++_idCounter, catchCurrentValue);
 //    mappable.addListener(*this);
 	ofAddListener(mappable->getMapEvent(), this, &ofxMidiMapper::onMapEvent);
 	_mappables[_idCounter] = mappable;
 }
-void ofxMidiMapper::addParameter(ofParameter <int> & parameter){
-	ofxMidiMappableInt * mappable = new ofxMidiMappableInt(parameter, ++_idCounter);
+void ofxMidiMapper::addParameter(ofParameter <int> & parameter, bool catchCurrentValue){
+	ofxMidiMappableInt * mappable = new ofxMidiMappableInt(parameter, ++_idCounter, catchCurrentValue);
 //    mappable.addListener(*this);
 	ofAddListener(mappable->getMapEvent(), this, &ofxMidiMapper::onMapEvent);
 	_mappables[_idCounter] = mappable;
@@ -36,10 +36,9 @@ void ofxMidiMapper::addParameter(ofParameter <void> & parameter){
 	ofAddListener(mappable->getMapEvent(), this, &ofxMidiMapper::onMapEvent);
 	_mappables[_idCounter] = mappable;
 }
-void ofxMidiMapper::addParameters(ofParameterGroup & parameters){
+void ofxMidiMapper::addParameters(ofParameterGroup & parameters, bool catchCurrentValue){
     for(auto parameter : parameters){
         auto type = parameter->type();
-        ofLogNotice() << type;
         if(type == "11ofParameterIvE"){
             auto typedParameter = parameter->cast<void>();
             addParameter(typedParameter);
@@ -48,10 +47,10 @@ void ofxMidiMapper::addParameters(ofParameterGroup & parameters){
             addParameter(typedParameter);
         }else if(type == "11ofParameterIiE"){
             auto typedParameter = parameter->cast<int>();
-            addParameter(typedParameter);
+            addParameter(typedParameter, catchCurrentValue);
         }else if(type == "11ofParameterIfE"){
             auto typedParameter = parameter->cast<float>();
-            addParameter(typedParameter);
+            addParameter(typedParameter, catchCurrentValue);
         }
     }
 }
@@ -64,7 +63,9 @@ void ofxMidiMapper::openVirtualMidiPort(string name){
 	_midiIn.closePort();
 	_midiIn.openVirtualPort(name);
 }
-
+void ofxMidiMapper::listInPorts(){
+    _midiIn.listInPorts();
+}
 bool ofxMidiMapper::addMapping(int channel, int pitch, bool isCC, int id, bool force){
 	if(doesMappingExist(channel, pitch, isCC)){
 		ofLogWarning("ofxMidiMapper") << "mapping does already exist: (" << channel << ", " << id << ")";
