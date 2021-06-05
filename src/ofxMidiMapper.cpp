@@ -1,6 +1,6 @@
 #include "ofxMidiMapper.h"
 
-ofxMidiMapper::ofxMidiMapper() : _idCounter(0){
+ofxMidiMapper::ofxMidiMapper() : _idCounter(0), _scanTimestamp(0){
 	_parameters.setName("parameters");
 	_activeParameter.set("on/off", true);
 	_activeMappingParameter.set("mapping mode", false);
@@ -8,7 +8,7 @@ ofxMidiMapper::ofxMidiMapper() : _idCounter(0){
 	_parameters.add(_activeParameter);
 	_parameters.add(_activeMappingParameter);
 
-	_midiIn.addListener(this);
+	// _midiIn.addListener(this);
     _midiIn.listInPorts();
 }
 
@@ -68,7 +68,7 @@ void ofxMidiMapper::listInPorts(){
 }
 bool ofxMidiMapper::addMapping(int channel, int pitch, bool isCC, int id, bool force){
 	if(doesMappingExist(channel, pitch, isCC)){
-		ofLogWarning("ofxMidiMapper") << "mapping does already exist: (" << channel << ", " << id << ")";
+		// ofLogWarning("ofxMidiMapper") << "mapping does already exist: (" << channel << ", " << id << ")";
 		if(force){
 			_mapping[tuple < int, int, bool > (channel, pitch, isCC)] = id;
 			return true;
@@ -77,7 +77,7 @@ bool ofxMidiMapper::addMapping(int channel, int pitch, bool isCC, int id, bool f
 		}
 	}else{
 		_mapping[std::tuple < int, int, bool > (channel, pitch, isCC)] = id;
-        ofLogNotice("ofxMidiMapper") << "added mapping: (" << channel << ", " << id << ")";
+        // ofLogNotice("ofxMidiMapper") << "added mapping: (" << channel << ", " << id << ")";
 		return true;
 	}
 }
